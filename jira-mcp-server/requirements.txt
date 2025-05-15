@@ -1,0 +1,5 @@
+# uv add -r requirements.txt
+
+mcp[cli]
+jira
+dotenv
