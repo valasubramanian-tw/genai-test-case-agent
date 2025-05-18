@@ -177,6 +177,7 @@ dependencies = [
     { name = "dotenv" },
     { name = "jira" },
     { name = "mcp", extra = ["cli"] },
+    { name = "uvicorn" },
 ]
 
 [package.metadata]
@@ -184,6 +185,7 @@ requires-dist = [
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "jira", specifier = ">=3.8.0" },
     { name = "mcp", extras = ["cli"], specifier = ">=1.8.1" },
+    { name = "uvicorn", specifier = ">=0.34.2" },
 ]
 
 [[package]]

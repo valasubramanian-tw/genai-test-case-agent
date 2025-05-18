@@ -4,3 +4,4 @@ dotenv
 httpx
 streamlit
 langchain
+fastapi

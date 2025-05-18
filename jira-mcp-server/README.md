@@ -42,3 +42,8 @@ ATLASSIAN_API_KEY=<your-atlassian-api-key>
 To debug the MCP server, run:
 ```bash
 npx @modelcontextprotocol/inspector uv run server.py
+
+Install MCP Server in Claude Desktop
+```bash
+uv run mcp install server.py
+```
