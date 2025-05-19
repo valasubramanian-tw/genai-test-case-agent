@@ -1,19 +1,16 @@
 """
 Main Test Case Agent implementation.
 """
-import json
 from langgraph.prebuilt import create_react_agent
 from langchain.schema import HumanMessage, SystemMessage
-from langchain_openai import ChatOpenAI
+from ..llm.chat_ollama_llm import ChatLLM
 from ..prompts.prompt_manager import promptManager
 from ..mcp.jira_mcp_client import client as jira_mcp_client
 
 class TestCasAgent:
     def __init__(self, model_name, llm_base_url, llm_api_key, temperature):
-        self.llm = ChatOpenAI(
-            model=model_name,
-            base_url="https://api.groq.com/openai/v1",
-            api_key=llm_api_key,
+        self.llm = ChatLLM(
+            model_name=model_name
         )
         self.jira_story = None
         self.test_cases = []
@@ -27,8 +24,8 @@ class TestCasAgent:
             dict: Details of the Jira story.
         """
         default_response = {
-            "key": story_id,
-            "summary": "Not Available",
+            "id": story_id,
+            "title": "Not Available",
             "description": "Not Available",
             "status": "Not Available"
         }
@@ -39,21 +36,13 @@ class TestCasAgent:
                 SystemMessage(content=prompts["system"]),
                 HumanMessage(content=prompts["user"])
             ]
-            tools = await jira_mcp_client.get_tools()
-            agent = create_react_agent(self.llm, tools)
+            tools = [] # await jira_mcp_client.get_tools()
+            agent = create_react_agent(self.llm.get_chat_model(), tools)
             response = await agent.ainvoke({"messages": messages})
             
-            if not response or not response.content:
-                return default_response
-                
-            content = response.content.strip()
-            if isinstance(content, dict):
-                return content
-            
-            # Try parsing the string response as JSON
-            parsed_response = json.loads(content)
-            if all(key in parsed_response for key in default_response.keys()):
-                return parsed_response
+            if response:
+                # Extracting the response content
+                return response.content
                 
             return default_response
             

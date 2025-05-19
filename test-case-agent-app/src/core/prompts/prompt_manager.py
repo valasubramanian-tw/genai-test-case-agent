@@ -10,7 +10,7 @@ class PromptManager(BaseModel):
         default={
             "system": """You are an AI assistant specialized in processing Jira stories. Return all responses as valid JSON without any additional text or formatting.""",
             "user": """For Jira story ID: AIFSDET-1, return story details in this exact JSON structure:
-{"key": "story identifier", "summary": "brief story summary", "description": "detailed story description", "status": "current story status"}
+{"id": "story identifier", "title": "story title", "description": "detailed story description", "status": "current story status"}
 
 Use "Not Available" for any missing fields. Return only the JSON object."""
         }

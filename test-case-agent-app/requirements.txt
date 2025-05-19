@@ -8,6 +8,7 @@ langchain-core
 langchain-community
 langchain-openai
 langchain_groq
+langchain_ollama
 langchain-text-splitters
 langchain_mcp_adapters
 langgraph
