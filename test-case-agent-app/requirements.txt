@@ -1,7 +1,24 @@
 # uv add -r requirements.txt
 
-dotenv
-httpx
-streamlit
+
+# Core dependencies
+# Core dependencies
 langchain
+langchain-core
+langchain-community
+langchain-openai
+langchain_groq
+langchain-text-splitters
+langchain_mcp_adapters
+langgraph
+
+
+# API and web
+dotenv
+python-dotenv
 fastapi
+uvicorn
+pydantic
+pydantic-settings
+streamlit
+httpx
