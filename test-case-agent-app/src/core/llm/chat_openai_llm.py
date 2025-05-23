@@ -1,5 +1,5 @@
-from langchain.chat_models import ChatOpenAI
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
 
 class ChatLLM:
     def __init__(self, model_name, llm_base_url, llm_api_key, temperature=0.7):

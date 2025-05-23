@@ -1,14 +1,14 @@
 from langchain_ollama import ChatOllama
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 
 class ChatLLM:
     def __init__(self, model_name):
-        self.chat = ChatOllama(
+        self.llm = ChatOllama(
             model=model_name
         )
-        
+    
     def get_chat_model(self):
-        return self.chat
+        return self.llm
     
     async def get_response(self, system_message: str, user_message: str) -> str:
         messages = [

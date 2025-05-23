@@ -1,11 +1,13 @@
 """
 Main Test Case Agent implementation.
 """
+from typing import AsyncGenerator
 from langgraph.prebuilt import create_react_agent
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
+from ...api.models.jira_story import JiraStory
 from ..llm.chat_ollama_llm import ChatLLM
 from ..prompts.prompt_manager import promptManager
-from ..mcp.jira_mcp_client import client as jira_mcp_client
+from ..tools.jira_mcp_client import client as jira_mcp_client
 
 class TestCasAgent:
     def __init__(self, model_name, llm_base_url, llm_api_key, temperature):
@@ -23,32 +25,51 @@ class TestCasAgent:
         Returns:
             dict: Details of the Jira story.
         """
-        default_response = {
-            "id": story_id,
-            "title": "Not Available",
-            "description": "Not Available",
-            "status": "Not Available"
-        }
-        
         try:
             prompts = promptManager.get_prompt("get_jira_story")
             messages = [
                 SystemMessage(content=prompts["system"]),
                 HumanMessage(content=prompts["user"])
             ]
-            tools = [] # await jira_mcp_client.get_tools()
-            agent = create_react_agent(self.llm.get_chat_model(), tools)
+            jira_tools = await jira_mcp_client.get_tools()
+            model = self.llm.get_chat_model()
+            # model_with_tools = model.bind_tools(jira_tools)
+            agent = create_react_agent(model, jira_tools, response_format=JiraStory)
             response = await agent.ainvoke({"messages": messages})
-            
-            if response:
-                # Extracting the response content
-                return response.content
-                
-            return default_response
+            structed_response = response["structured_response"]
+            return structed_response
             
         except Exception as e:
             print(f"Error processing story details: {str(e)}")
-            return default_response
+            return e
+        
+    async def stream_jira_story_details(self, story_id: str) -> AsyncGenerator[str]:
+        """
+        Stream the details of a Jira story using the provided story ID.
+        Get streaming response of fetching a Jira story by its ID.
+
+        Args:
+            story_id (str): The ID of the Jira story to fetch.
+            
+        Yields:
+            dict: Chunks of the story details as they become available
+        """
+        try:
+            prompts = promptManager.get_prompt("get_jira_story")
+            messages = [
+                SystemMessage(content=prompts["system"]),
+                HumanMessage(content=prompts["user"])
+            ]
+            
+            tools = await jira_mcp_client.get_tools()
+            model = self.llm.get_chat_model()
+            model_with_tools = model.bind_tools(tools)            
+            async for chunk in model_with_tools.astream(messages):
+                yield chunk
+                    
+        except Exception as e:
+            print(f"Error streaming story details: {str(e)}")
+            yield {"type": "error", "content": str(e)}
         
     def generate_test_cases(self):
         # Placeholder for actual implementation

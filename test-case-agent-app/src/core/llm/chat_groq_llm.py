@@ -1,5 +1,5 @@
 from langchain_groq import ChatGroq
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 
 class ChatLLM:
     def __init__(self, model_name, llm_api_key, temperature=0.7):

@@ -19,8 +19,9 @@ class Settings(BaseModel):
     
     # Logging settings
     log_level: str = "INFO"
-    
+
     # API settings
+    api_base_url: str = os.getenv("API_BASE_URL", "http://localhost:8000")
     api_prefix: str = "/api/v1"
     
 settings = Settings()
