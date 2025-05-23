@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Example client code
-async def fetch_streaming_story(story_id: str):
+async def stream_story_details(story_id: str):
     api_url = f"{settings.api_base_url}/stream/jira/story/{story_id}"
     logger.info(f"Streaming story details from: {api_url}")
     
@@ -142,7 +142,7 @@ def main():
         if story_key:
             with st.spinner("Fetching story details..."):
                 # Run async function in sync context
-                result = asyncio.run(fetch_streaming_story(story_key))
+                result = asyncio.run(fetch_story_details(story_key))
                 story_details = result['response'] if result['response'] else None
                 if story_details:
                     st.session_state.story_details = story_details
