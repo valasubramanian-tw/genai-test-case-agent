@@ -10,6 +10,7 @@ from typing import Any
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from .core.agent.test_case_agent import TestCaseAgent
+from .core.agent.jira_story_agent import JiraStoryAgent
 from .models.jira_story import JiraStoryResponse, JiraStoryError, JiraTestCaseResponse
 from .config.settings import settings
 
@@ -28,17 +29,23 @@ try:
         llm_api_key=settings.llm_api_key,
         temperature=settings.llm_temperature
     )
+    jiraAgent = JiraStoryAgent(
+        model_name=settings.llm_model,
+        llm_base_url=settings.llm_base_url,
+        llm_api_key=settings.llm_api_key,
+        temperature=settings.llm_temperature
+    )
 except Exception as e:
     print(f"Error initializing TestCasAgent: {e}")
     raise
 
-@app.get("/jira/{story_id}/story", response_model=JiraStoryResponse)
+@app.get("/jira/{story_id}/details", response_model=JiraStoryResponse)
 async def get_jira_story(story_id: str) -> JiraStoryResponse:
     """
     Get a Jira story by its ID.
     """
     try:
-        agent_response = await agent.get_jira_story_details(story_id)
+        agent_response = await jiraAgent.get_jira_story_details(story_id)
         return JiraStoryResponse(response=agent_response)
     except Exception as e:
         print(f"Error fetching Jira story details: {e}")
