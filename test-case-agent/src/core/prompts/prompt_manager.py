@@ -17,12 +17,11 @@ class PromptManager(BaseModel):
     generate_jira_test_cases: PromptTemplate = Field(
         default={
             "system": """You are an AI assistant specialized in generating test cases for Jira stories.""",
-            "user": """For below Jira story {story_id}, generate test cases for possible scenarios based on the story details fetched.
+            "user": """For Jira story {story_id}, generate test cases based on the below story details.
             Summary: {summary}
             Description: {description}
-            Acceptance Criteria: {acceptance_criteria}
-            Return the test cases in a structured format as a JSON array.
-            Ensure to include both positive and negative scenarios, including edge cases."""
+            Return the results in tabular format with columns including No., Scenario, Test Case.
+            Ensure to include both positive and negative scenarios, including edge cases in Given When Then format."""
         }
     )
     

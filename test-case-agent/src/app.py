@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from .core.agent.test_case_agent import TestCaseAgent
 from .core.agent.jira_story_agent import JiraStoryAgent
-from .models.jira_story import JiraStoryResponse, JiraStoryError, JiraTestCaseResponse
+from .models.jira_story import JiraStory, JiraStoryResponse, JiraStoryError, JiraTestCaseResponse
 from .config.settings import settings
 
 apiPrefix = settings.api_prefix
@@ -52,7 +52,7 @@ async def get_jira_story(story_id: str) -> JiraStoryResponse:
         return JiraStoryResponse(response=JiraStoryError(error=str(e)))
     
 @app.get("/jira/{story_id}/tests", response_model=JiraTestCaseResponse)
-async def get_jira_test_cases(story_id: str) -> JiraTestCaseResponse:
+async def get_jira_test_cases_by_id(story_id: str) -> JiraTestCaseResponse:
     """
     Generate test cases for a Jira story by its ID.
     Args:
@@ -61,7 +61,27 @@ async def get_jira_test_cases(story_id: str) -> JiraTestCaseResponse:
         JiraTestCaseResponse: A response containing the generated test cases or an error.
     """
     try:
-        agent_response = await agent.get_jira_test_cases(story_id)
+        agent_response = await agent.get_jira_test_cases_by_id(story_id)
+        return JiraTestCaseResponse(response=agent_response)
+    except Exception as e:
+        print(f"Error generating tests for Jira issue: {e}")
+        return JiraTestCaseResponse(response=JiraStoryError(error=str(e)))
+
+@app.post("/jira/tests", response_model=JiraTestCaseResponse)
+async def get_jira_test_cases(payload: JiraStory) -> JiraTestCaseResponse:
+    """
+    Generate test cases for a Jira story
+    Args:
+        payload: The payload containing below parameters.
+            story_id: The ID of the Jira story to generate test cases for.
+            summary: The summary of the Jira story.
+            description: The description of the Jira story.
+            status: The status of the Jira story.
+    Returns:
+        JiraTestCaseResponse: A response containing the generated test cases or an error.
+    """
+    try:
+        agent_response = await agent.get_jira_test_cases(payload)
         return JiraTestCaseResponse(response=agent_response)
     except Exception as e:
         print(f"Error generating tests for Jira issue: {e}")

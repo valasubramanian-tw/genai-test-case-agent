@@ -1,15 +1,22 @@
 import api, { route } from '@forge/api'; 
+import JiraStory from '../../models/JiraStory';
 
 const getJiraIssue = async ({ context }) => {
     const issueId = context.extension.issue.key;
     console.log('Fetching details for issueId:', issueId);
-    const apiResponse = await api.asApp().requestJira(route`/rest/api/3/issue/${issueId}`, {
+    const apiResponse = await api.asApp().requestJira(route`/rest/api/2/issue/${issueId}`, {
         headers: {
             'Accept': 'application/json'
         }
     });
     const issueDetails = await apiResponse.json();
-    return issueDetails;
+    const jiraStory: JiraStory = {
+        key: issueDetails.key,
+        summary: issueDetails.fields.summary,
+        description: issueDetails.fields.description || '',
+        status: issueDetails.fields.status.name
+    };
+    return jiraStory;
 }
 
 export default getJiraIssue;

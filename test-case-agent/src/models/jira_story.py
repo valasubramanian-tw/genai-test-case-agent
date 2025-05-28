@@ -3,9 +3,8 @@ from typing import List
 
 class JiraStory(BaseModel):
     key: str = Field(description="The key of the Jira story")
-    title: str = Field(description="The title of the Jira story")
-    description: str = Field(description="The description of the Jira story. Exlude the acceptance criteria. ")
-    acceptance_criteria: List[str] = Field(description="The acceptance criteria of the Jira story provided in the description")
+    summary: str = Field(description="The title of the Jira story")
+    description: str = Field(description="The description of the Jira story.")
     status: str = Field(description="The status of the Jira story")
     
 class JiraStoryError(BaseModel):
