@@ -20,8 +20,17 @@ class PromptManager(BaseModel):
             "user": """For Jira story {story_id}, generate test cases based on the below story details.
             Summary: {summary}
             Description: {description}
-            Return the results in tabular format with columns including No., Scenario, Test Case.
-            Ensure to include both positive and negative scenarios, including edge cases in Given When Then format."""
+            Return 5 test cases and ensure to include both positive and negative scenarios, including edge cases in below example format.
+            Example format:
+            Here are some test cases for RETAILPRD-1 based on the provided story details:
+
+**Test Case 1: Successful Add Expense**
+
+* **Title:** Add expense with valid amount, category, and date
+* **Given**: The user is on the add expense screen
+* **When**: The user inputs a positive decimal number for amount (e.g. $100.50), selects a valid category from the dropdown (e.g. Food), and enters a past or present date (e.g. 2023-02-15)
+* **Then**: The expense is added successfully, and the user sees a confirmation message
+            """
         }
     )
     

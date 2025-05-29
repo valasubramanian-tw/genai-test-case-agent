@@ -98,8 +98,37 @@ class TestCaseAgent:
         except Exception as e:
             print(f"Error generating test cases: {str(e)}")
             return e
-    
-    async def stream_jira_test_cases(self, story_id: str) -> AsyncGenerator[str]:
+        
+    async def stream_jira_test_cases(self, jira_story: JiraStory) -> AsyncGenerator[str]:
+        """
+        Generate test cases for a Jira story
+        Args:
+            story (JiraStory): The Jira story object containing details.
+        Returns:
+            AsyncGenerator[str]: A generator yielding test cases as strings.
+        """
+        try:
+            system_prompt = promptManager.get_system_prompt("generate_jira_test_cases")
+            user_prompt = promptManager.format_user_prompt("generate_jira_test_cases",
+                story_id=jira_story.key,
+                summary=jira_story.summary,
+                description=jira_story.description
+            )
+            messages = [
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=user_prompt),
+            ]
+
+            model = self.llm.get_chat_model()
+            agent = create_react_agent(model, tools=[])
+            async for token, metadata in agent.astream({"messages": messages}, stream_mode="messages"):
+                yield token.content
+            
+        except Exception as e:
+            print(f"Error generating test cases: {str(e)}")
+            yield str(e)
+            
+    async def stream_jira_test_cases_by_id(self, story_id: str) -> AsyncGenerator[str]:
         """
         Generate test cases for a Jira story using the provided story ID.
         Args:

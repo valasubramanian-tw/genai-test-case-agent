@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Text, useProductContext } from '@forge/react';
+import { Box, Button, SectionMessage, Text, useProductContext } from '@forge/react';
 import { invoke } from '@forge/bridge';
 
 const App = () => {
@@ -80,7 +80,7 @@ const App = () => {
             <Button appearance="primary" onClick={handleGetTests}>Generate Test Cases</Button>}
           {testCases &&
             <Box>
-              <Text>{testCases}</Text>
+              <SectionMessage title="Test Cases" appearance='discovery'>{testCases}</SectionMessage>
             </Box>
           }
         </Box>

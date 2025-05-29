@@ -73,7 +73,7 @@ async def get_jira_test_cases(payload: JiraStory) -> JiraTestCaseResponse:
     Generate test cases for a Jira story
     Args:
         payload: The payload containing below parameters.
-            story_id: The ID of the Jira story to generate test cases for.
+            key: The ID of the Jira story to generate test cases for.
             summary: The summary of the Jira story.
             description: The description of the Jira story.
             status: The status of the Jira story.
@@ -87,8 +87,48 @@ async def get_jira_test_cases(payload: JiraStory) -> JiraTestCaseResponse:
         print(f"Error generating tests for Jira issue: {e}")
         return JiraTestCaseResponse(response=JiraStoryError(error=str(e)))
     
+@app.post("/stream/jira/tests")
+async def stream_jira_test_cases(payload: JiraStory):
+    """
+    Generate test cases for a Jira story as streaming response.
+    Args:
+        payload: The payload containing below parameters.
+            key: The ID of the Jira story to generate test cases for.
+            summary: The summary of the Jira story.
+            description: The description of the Jira story.
+            status: The status of the Jira story.
+    Returns:
+        StreamingResponse: A streaming response containing the generated test cases.
+    """
+    async def generate():
+        try:
+            async for chunk in agent.stream_jira_test_cases(payload):
+                event_data = json.dumps({
+                    "type": "message",
+                    "content": chunk
+                }, ensure_ascii=False)
+                yield f"data: {event_data}\n\n"
+        except Exception as e:
+            logger.error(f"Error streaming test cases: {e}")
+            error_data = json.dumps({
+                "type": "error",
+                "content": str(e)
+            })
+            yield f"data: {error_data}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+            "X-Accel-Buffering": "no"
+        }
+    )
+    
 @app.get("/stream/jira/{story_id}/tests")
-async def stream_jira_test_cases(story_id: str):
+async def stream_jira_test_cases_by_id(story_id: str):
     """
     Generate test cases for a Jira story by its ID as streaming response.
     Args:
@@ -98,7 +138,7 @@ async def stream_jira_test_cases(story_id: str):
     """
     async def generate():
         try:
-            async for chunk in agent.stream_jira_test_cases(story_id):
+            async for chunk in agent.stream_jira_test_cases_by_id(story_id):
                 event_data = json.dumps({
                     "type": "message",
                     "content": chunk

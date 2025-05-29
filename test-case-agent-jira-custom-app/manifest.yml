@@ -1,0 +1,29 @@
+modules:
+  jira:issuePanel:
+    - key: test-case-agent-jira-custom-app-issue-panel
+      resource: main
+      resolver:
+        function: resolver
+      viewportSize: medium
+      title: AI Test Case Agent
+      icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
+  function:
+    - key: resolver
+      handler: index.handler
+resources:
+  - key: main
+    path: static/ui/build
+permissions:
+  scopes:
+    - read:jira-work
+  external:
+    fetch:
+      backend:
+        - https://rnjep-49-47-218-85.a.free.pinggy.link
+
+app:
+  runtime:
+    name: nodejs20.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/766b2848-a917-49fc-9e9f-283344ae464a
