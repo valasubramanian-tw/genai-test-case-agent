@@ -1,49 +1,85 @@
 # JIRA MCP Server
 
-This project provides a MCP Server to fetch the details of a JIRA story from the JIRA API.
+A Model Context Protocol (MCP) server that provides an interface to fetch JIRA story details from the JIRA API.
 
 ## Features
-- Retrieve JIRA story details such as summary, description, status, and more.
+- Fetch JIRA story details including summary, description, and status
+- Supports both direct HTTP API and JIRA SDK implementations
+- Easy integration with Claude Desktop via MCP
 
-## Usage
-The main function takes a JIRA story key as input and returns the details of the story.
+## Prerequisites
+- Python 3.13 or higher
+- UV package manager
+- Atlassian JIRA access
 
-**Arguments:**
-- `key` (`str`): The JIRA story key.
+## Installation
 
-**Returns:**
-- `dict`: The details of the JIRA story.
-- `None`: If the story is not found or an error occurs.
-
----
-
-## Local Setup
+1. Clone and setup the environment:
 ```bash
+git clone <repository-url>
 cd jira-mcp-server
 uv venv
 source .venv/bin/activate
 ```
 
-## Install Dependencies
+2. Install dependencies:
 ```bash
 uv add -r requirements.txt
 ```
 
-## Environment Variables
-Create a `.env` file in the `jira-mcp-server` directory with the following variables:
-
+3. Configure environment variables:
+Create a `.env` file with:
 ```env
-ATLASSIAN_SERVER_URL=<your-jira-server-url>
-ATLASSIAN_USER_NAME=<your-atlassian-username>
-ATLASSIAN_API_KEY=<your-atlassian-api-key>
+ATLASSIAN_SERVER_URL=https://your-domain.atlassian.net
+ATLASSIAN_USER_NAME=your-email@domain.com
+ATLASSIAN_API_KEY=your-api-token
 ```
 
-## Debug MCP Server
-To debug the MCP server, run:
+## Usage
+
+### Running the Server
+
+Start the server using either:
+
+```bash
+# Direct HTTP implementation
+uv run server.py
+
+# Or using JIRA SDK implementation
+uv run server-sdk.py
+```
+
+### Debug Mode
+For debugging, use the MCP inspector:
 ```bash
 npx @modelcontextprotocol/inspector uv run server.py
+```
 
-Install MCP Server in Claude Desktop
+### Install in Claude Desktop
 ```bash
 uv run mcp install server.py
 ```
+
+### API Reference
+
+The server exposes the following MCP tool:
+
+#### get_jira_story_details
+Fetches details of a JIRA story.
+
+**Parameters:**
+- `key` (string): JIRA issue key (e.g., "PROJECT-123")
+
+**Returns:**
+- `dict`: Story details containing:
+  - `key`: Issue key
+  - `summary`: Issue summary
+  - `description`: Full description
+  - `status`: Current status
+- `None`: If story not found or error occurs
+
+## License
+MIT
+
+## Contributing
+Pull requests are welcome. Please ensure tests pass before submitting.

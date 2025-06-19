@@ -1,22 +1,58 @@
-# GenAI Test Case Agent Application
+# GenAI Test Case Agent
 
-The GenAI Test Case Agent is a FastAPI-based application that leverages AI and MCP features to generate test cases and integrates with Jira for story management.
+GenAI Test Case Agent is a tool designed to automate the generation and management of test cases using generative AI techniques.
 
 ## Features
-- **Jira Integration**: Fetch Jira story details using story IDs.
-- **AI-Powered Test Case Generation**: Uses Groq's LLM to generate test cases.
-- **Extensible Architecture**: Built with modular components for easy customization.
 
-### Key Components
-- **LLM Integration**: Uses LangChain's `ChatOpenAI` for AI-powered responses.
-- **Prompt Management**: Centralized prompt templates for consistent communication with the LLM.
-- **Jira MCP Client**: Handles Jira API interactions.
+- Automated test case generation
+- Integration with popular testing frameworks
+- Customizable prompts and templates
+- Easy setup and extensibility
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v16 or higher) and npm
+- (Optional) Python 3.x if using Python-based plugins
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/your-org/genai-test-case-agent.git
+cd genai-test-case-agent
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+### Configuration
+
+Configure your environment variables and settings as needed. See `.env.example` for reference.
+
+### Usage
+
+To generate test cases:
+
+```bash
+npm run generate
+```
+
+To run tests:
+
+```bash
+npm test
+```
 
 ## Contributing
-Contributions are welcome! Please follow these steps:
-1. Fork the repository.
-2. Create a feature branch.
-3. Submit a pull request.
+
+Contributions are welcome! Please open issues or submit pull requests.
 
 ## License
+
 This project is licensed under the MIT License.
