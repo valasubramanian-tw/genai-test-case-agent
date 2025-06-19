@@ -15,3 +15,8 @@ class JiraStoryResponse(BaseModel):
     
 class JiraTestCaseResponse(BaseModel):
     response: str | JiraStoryError
+    
+class JiraTestCaseRequest(BaseModel):
+    story: JiraStory
+    format: str = Field(default="markdown", description="The format of the test cases to be generated. Default is markdown.")
+    limit: int = Field(default=10, description="The maximum number of test cases to generate. Default is 10.")

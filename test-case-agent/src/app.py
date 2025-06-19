@@ -3,6 +3,8 @@ FastAPI application for Test case agent.
 
 uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
 ssh -R 80:localhost:8000 serveo.net
+ssh -p 443 -R0:localhost:8000 a.pinggy.io
+ssh -p 443 -R0:localhost:8000 -t a.pinggy.io x:passpreflight
 """
 import json
 import logging
@@ -11,12 +13,22 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from .core.agent.test_case_agent import TestCaseAgent
 from .core.agent.jira_story_agent import JiraStoryAgent
-from .models.jira_story import JiraStory, JiraStoryResponse, JiraStoryError, JiraTestCaseResponse
+from .models.jira_story import JiraStory, JiraTestCaseRequest, JiraStoryResponse, JiraStoryError, JiraTestCaseResponse
 from .config.settings import settings
+from fastapi.middleware.cors import CORSMiddleware
 
 apiPrefix = settings.api_prefix
 # Initialize FastAPI app
 app = FastAPI(title="Test Case Agent Service")
+
+# Allow all origins (for development; restrict in production)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or specify allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -68,7 +80,7 @@ async def get_jira_test_cases_by_id(story_id: str) -> JiraTestCaseResponse:
         return JiraTestCaseResponse(response=JiraStoryError(error=str(e)))
 
 @app.post("/jira/tests", response_model=JiraTestCaseResponse)
-async def get_jira_test_cases(payload: JiraStory) -> JiraTestCaseResponse:
+async def get_jira_test_cases(payload: JiraTestCaseRequest) -> JiraTestCaseResponse:
     """
     Generate test cases for a Jira story
     Args:
@@ -81,14 +93,14 @@ async def get_jira_test_cases(payload: JiraStory) -> JiraTestCaseResponse:
         JiraTestCaseResponse: A response containing the generated test cases or an error.
     """
     try:
-        agent_response = await agent.get_jira_test_cases(payload)
+        agent_response = await agent.get_jira_test_cases(payload.story, format=payload.format, limit=payload.limit)
         return JiraTestCaseResponse(response=agent_response)
     except Exception as e:
         print(f"Error generating tests for Jira issue: {e}")
         return JiraTestCaseResponse(response=JiraStoryError(error=str(e)))
     
 @app.post("/stream/jira/tests")
-async def stream_jira_test_cases(payload: JiraStory):
+async def stream_jira_test_cases(payload: JiraTestCaseRequest):
     """
     Generate test cases for a Jira story as streaming response.
     Args:
@@ -102,7 +114,11 @@ async def stream_jira_test_cases(payload: JiraStory):
     """
     async def generate():
         try:
-            async for chunk in agent.stream_jira_test_cases(payload):
+            async for chunk in agent.stream_jira_test_cases(
+                story=payload.story,
+                format=payload.format,
+                limit=payload.limit
+            ):
                 event_data = json.dumps({
                     "type": "message",
                     "content": chunk
@@ -128,7 +144,7 @@ async def stream_jira_test_cases(payload: JiraStory):
     )
     
 @app.get("/stream/jira/{story_id}/tests")
-async def stream_jira_test_cases_by_id(story_id: str):
+async def stream_jira_test_cases_by_id(story_id: str, format: str = 'Markdown', limit: int = 0):
     """
     Generate test cases for a Jira story by its ID as streaming response.
     Args:
@@ -137,8 +153,10 @@ async def stream_jira_test_cases_by_id(story_id: str):
         StreamingResponse: A streaming response containing the generated test cases.
     """
     async def generate():
+        # Read query strings format and limit
+        
         try:
-            async for chunk in agent.stream_jira_test_cases_by_id(story_id):
+            async for chunk in agent.stream_jira_test_cases_by_id(story_id=story_id, format=format, limit=limit):
                 event_data = json.dumps({
                     "type": "message",
                     "content": chunk

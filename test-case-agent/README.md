@@ -64,7 +64,7 @@ test-case-agent-app/
 
 ```bash
 # Start the FastAPI server
-uvicorn src.api.app:app --reload --host 0.0.0.0 --port 8000
+uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Access the API documentation at: http://localhost:8000/docs

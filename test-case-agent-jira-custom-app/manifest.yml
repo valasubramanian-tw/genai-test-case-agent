@@ -5,7 +5,7 @@ modules:
       resolver:
         function: resolver
       viewportSize: medium
-      title: AI Test Case Agent
+      title: AI-Powered Test Case Agent
       icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
   function:
     - key: resolver
@@ -16,10 +16,15 @@ resources:
 permissions:
   scopes:
     - read:jira-work
+  content:
+    styles:
+      - 'unsafe-inline'
   external:
     fetch:
       backend:
-        - https://rnjep-49-47-218-85.a.free.pinggy.link
+        - https://rncib-157-51-70-78.a.free.pinggy.link
+      client:
+        - https://rncib-157-51-70-78.a.free.pinggy.link
 
 app:
   runtime:

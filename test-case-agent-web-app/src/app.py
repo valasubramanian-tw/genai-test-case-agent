@@ -17,15 +17,15 @@ from config.settings import settings
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def stream_test_cases(story_id: str):
-    api_url = f"{settings.api_base_url}/stream/jira/{story_id}/tests"
+async def stream_test_cases(story_id: str, format: str = "Markdown", number: int = 5) -> None:
+    api_url = f"{settings.api_base_url}/stream/jira/{story_id}/tests?format={format}&limit={number}"
     logger.info(f"Streaming story details from: {api_url}")
 
     message_container = st.empty()
     full_message = ""
 
     try:
-        timeout = httpx.Timeout(30.0, connect=20.0) 
+        timeout = httpx.Timeout(60.0, connect=20.0)
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with client.stream('GET', api_url) as response:
                 response.raise_for_status()
@@ -82,26 +82,87 @@ def init_session_state() -> None:
         st.session_state.test_cases = None
 
 async def main():
-    """Main application function."""
-    st.title("Test Case Agent App")
-    st.write("Your personal assistant for automating test cases generation.")
-    st.divider()
+    """ Create a left sidebar with the title and description."""
+    st.sidebar.title("AI-Powered Test Case Agent")
+    st.sidebar.write("From Stories to Test Cases – Automatically generate test cases from your user stories.")
+    st.sidebar.write("Transform acceptance criteria into actionable test cases in one click.")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.text_input(
+        "**:blue[Atlassian URL: ]**",
+            placeholder="e.g., myaccount.atlassian.net",
+            value="twks.atlassian.net",
+        ).strip()
+    st.sidebar.text_input(
+        "**:blue[Atlassian API Key: ]**",
+            placeholder="e.g., ****************",
+            value="****************",
+            type="password"
+        ).strip()
 
     # Initialize session state
     init_session_state()
 
-    # Input field for Jira story key
-    story_key = st.text_input(
-        "Enter Jira Story Key:", 
-        value="RETAILPRD-1", 
-        placeholder="e.g., PROJ-123"
-    ).strip()
+    # Group input fields in the same row using columns
+    col1, col2, col3 = st.columns([1, 1, 1])
+
+    with col1:
+        story_key = st.text_input(
+            "**:blue[Enter Jira Story Number: ]**", 
+            placeholder="e.g., PROJ-123"
+        ).strip()
+    with col2:
+        format = st.selectbox(
+            "Select Output Format:",
+            options=["Markdown", "Table", "JSON"],
+            index=0,
+            help="Choose the format for the generated test cases."
+        )
+    with col3:
+        number = st.number_input(
+            "Number of Test Cases to Generate:",
+            min_value=5,
+            max_value=20,
+            value=10,
+            help="Specify how many test cases you want to generate."
+        )
     
-    if st.button("Generate Test Cases", key="generate_test_cases"):
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        custom_instructions = st.text_input(
+            "Custom Instructions (optional):",
+            placeholder="Add any specific instructions for generating test cases."
+        )
+    with col2:
+        st.write("")  # One line of space
+        st.write("")  # Another line of space
+        generate_clicked = st.button("Generate Test Cases", key="generate_test_cases", type="primary")
+
+    if generate_clicked:
         if story_key:
             with st.spinner("Generating test cases..."):
-                # Stream the test cases
-                await stream_test_cases(story_key)
+                await stream_test_cases(story_key, format, number)
+            
+            with st.container():
+                col1 = st.columns(1)[0]
+                col1.write("")
+                col1.chat_input(
+                    placeholder="Ask a question or any specific test cases to generate"
+                )
+                col1.write("")
+            
+            with st.container():
+                col1, col2, = st.columns([3, 1])
+                framework = col1.selectbox(
+                    "**Select Framework:**",
+                    options=["Python - Pytest", "Java - JUnit", "React - Jest", "C# - MSTest", "Ruby - RSpec", "JavaScript - Mocha"],
+                    index=0,
+                    help="Choose the framework for the generated test script files."
+                )
+                col2.write("")
+                col2.write("")
+                col2.button("Generate Test Scripts", key="generate_test_scripts", type="primary")
+            
 
 if __name__ == "__main__":
     asyncio.run(main())

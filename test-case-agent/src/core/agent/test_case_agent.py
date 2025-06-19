@@ -59,7 +59,7 @@ class TestCaseAgent:
             print(f"Error generating test cases: {str(e)}")
             return e
     
-    async def get_jira_test_cases(self, story: JiraStory):
+    async def get_jira_test_cases(self, story: JiraStory, format: str = "markdown", limit: int = 10):
         """
         Generate test cases for a Jira story using the provided story object.
         Args:
@@ -68,12 +68,14 @@ class TestCaseAgent:
             list: A list of generated test cases for the Jira story.
         """
         try:
-            system_prompt = promptManager.get_system_prompt("generate_jira_test_cases")
+            user_instructions = f"Respond only in {format} format."
+            user_instructions += f" Generate only {limit} test cases." if limit > 0 else ""
+            system_prompt = promptManager.get_system_prompt("generate_jira_test_cases_instruct")
             user_prompt = promptManager.format_user_prompt(
-                "generate_jira_test_cases",
-                story_id=story.key,
+                "generate_jira_test_cases_instruct",
                 summary=story.summary,
-                description=story.description
+                description=story.description,
+                user_instructions=user_instructions
             )
             messages = [
                 SystemMessage(content=system_prompt),
@@ -99,7 +101,7 @@ class TestCaseAgent:
             print(f"Error generating test cases: {str(e)}")
             return e
         
-    async def stream_jira_test_cases(self, jira_story: JiraStory) -> AsyncGenerator[str]:
+    async def stream_jira_test_cases(self, story: JiraStory, format: str = "markdown", limit: int = 10) -> AsyncGenerator[str]:
         """
         Generate test cases for a Jira story
         Args:
@@ -108,11 +110,13 @@ class TestCaseAgent:
             AsyncGenerator[str]: A generator yielding test cases as strings.
         """
         try:
-            system_prompt = promptManager.get_system_prompt("generate_jira_test_cases")
-            user_prompt = promptManager.format_user_prompt("generate_jira_test_cases",
-                story_id=jira_story.key,
-                summary=jira_story.summary,
-                description=jira_story.description
+            user_instructions = f"Respond only in {format} format."
+            user_instructions += f" Generate only {limit} test cases." if limit > 0 else ""
+            system_prompt = promptManager.get_system_prompt("generate_jira_test_cases_instruct")
+            user_prompt = promptManager.format_user_prompt("generate_jira_test_cases_instruct",
+                summary=story.summary,
+                description=story.description,
+                user_instructions=user_instructions
             )
             messages = [
                 SystemMessage(content=system_prompt),
@@ -128,7 +132,7 @@ class TestCaseAgent:
             print(f"Error generating test cases: {str(e)}")
             yield str(e)
             
-    async def stream_jira_test_cases_by_id(self, story_id: str) -> AsyncGenerator[str]:
+    async def stream_jira_test_cases_by_id(self, story_id: str, format: str, limit: int) -> AsyncGenerator[str]:
         """
         Generate test cases for a Jira story using the provided story ID.
         Args:
@@ -148,11 +152,23 @@ class TestCaseAgent:
                 yield str(jira_story)
                 return
             
-            system_prompt = promptManager.get_system_prompt("generate_jira_test_cases")
-            user_prompt = promptManager.format_user_prompt("generate_jira_test_cases",
-                story_id=jira_story.key,
+            if jira_story.summary == "Not Available":
+                yield "Error fetching JIRA story details. Please try again!"
+                return
+            
+            print("JIRA Story fetched")
+            print(f"params: {story_id}, format: {format}, limit: {limit}")
+            
+            user_instructions = f"Respond only in {format} format."
+            user_instructions += f" Generate only {limit} test cases." if limit > 0 else ""
+            
+            print(f"User instructions: {user_instructions}")
+            
+            system_prompt = promptManager.get_system_prompt("generate_jira_test_cases_instruct")
+            user_prompt = promptManager.format_user_prompt("generate_jira_test_cases_instruct",
                 summary=jira_story.summary,
-                description=jira_story.description
+                description=jira_story.description,
+                user_instructions=user_instructions
             )
             messages = [
                 SystemMessage(content=system_prompt),

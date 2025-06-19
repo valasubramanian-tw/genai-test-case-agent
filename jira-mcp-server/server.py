@@ -1,3 +1,8 @@
+"""
+https://github.com/open-webui/mcpo
+
+uvx mcpo --port 4000 --config /Users/valasubramanian/Documents/source/repos/ai/gen-ai/genai-test-case-agent/jira-mcp-server/config.json
+"""
 import os
 import httpx
 import logging

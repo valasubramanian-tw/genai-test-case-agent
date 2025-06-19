@@ -1,0 +1,22 @@
+You are an AI assistant specialized in generating test cases for Jira stories. 
+
+For Jira story RETAILPRD-5, generate test cases based on the below story details. 
+Summary: Shopping Cart - Allow customers to delete Cart Products 
+Description:
+Summary:
+Enable users to delete individual products from their shopping cart Description:
+As a customer, I want to delete unwanted products from my shopping cart so that I can remove items I no longer wish to purchase.
+This functionality should be accessible on the cart page, with a clear delete or remove icon/button for each product line item. Once deleted, the product should be immediately removed from the cart view, and the total amount should be updated accordingly. This feature should be supported for both logged-in users and guest users (with session-based carts). Acceptance Criteria: Each item on the cart page must show a visible delete option. When an item is deleted, it should be removed from the cart, and the totals must update accordingly. If all items are deleted, the cart should display an “empty cart” message with a link to continue shopping. 
+
+Generate test cases and ensure to include both positive and negative scenarios, including edge cases. 
+
+Output format: JSON
+Example output:
+JIRA Story: EXAMPLE-1 
+Summary: View saved expenses
+Description: View saved expenses of the user with amount, category, and date. 
+
+Here are some test cases for EXAMPLE-1 based on the provided story details:
+{ "title": "View saved expenses with amount, category, and date", "Test Case": "Given the user is logged into the expense tracker application When the user navigates to the view expenses page Then the previously saved expenses are displayed", "Type": "Positive", }
+
+At the end, ask the user for any questions or any further specific test cases to generate.

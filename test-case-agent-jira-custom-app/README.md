@@ -35,7 +35,10 @@ forge deploy
 - Install your app in an Atlassian site by running:
 ```
 forge install
+forge install --upgrade
 ```
+
+forge tunnel
 
 ### Notes
 - Use the `forge deploy` command when you want to persist code changes.

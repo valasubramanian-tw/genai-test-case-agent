@@ -20,16 +20,36 @@ class PromptManager(BaseModel):
             "user": """For Jira story {story_id}, generate test cases based on the below story details.
             Summary: {summary}
             Description: {description}
-            Return 5 test cases and ensure to include both positive and negative scenarios, including edge cases in below example format.
-            Example format:
-            Here are some test cases for RETAILPRD-1 based on the provided story details:
+            Generate {number} test cases and ensure to include both positive and negative scenarios, including edge cases.
+            Output format: {format}
+            Example output:
+            {example_output}
+            At the end, ask the user for any questions or any further specific test cases to generate."""
+        }
+    )
+    
+    generate_jira_test_cases_instruct: PromptTemplate = Field(
+        default={
+            "system": """You are a member of a QA team responsible for testing an application. Using the JIRA story information provided, generate comprehensive test scenarios that combine exploratory testing with story-driven approaches.""",
+            "user": """## CONTEXT DESCRIPTION:
+            ~JIRA Story Summary:~
+            {summary}
+            ~JIRA Story Description:~ 
+            {description}
+            
+            ## OBJECTIVE
+            Based on the context provided, please generate in-depth, specific exploratory test scenarios that target critical functionalities, unexpected behaviors, and key edge cases.
+            You analysis and identify various scenarios including happy paths, sad paths, exceptional edge case scenarios, and associate each scenario with a priority level for implementation.
+            Choose priorities of high, medium or low to determine the order in which scenario should be implemented, and list those with high priority first.
 
-**Test Case 1: Successful Add Expense**
-
-* **Title:** Add expense with valid amount, category, and date
-* **Given**: The user is on the add expense screen
-* **When**: The user inputs a positive decimal number for amount (e.g. $100.50), selects a valid category from the dropdown (e.g. Food), and enters a past or present date (e.g. 2023-02-15)
-* **Then**: The expense is added successfully, and the user sees a confirmation message
+            ## Instructions
+            You will create at least one scenario for each path.
+            You will respond with a specific format: Markdown or Table or JSON format.
+            You will check if I have provided any specific format for you to respond, otherwise you will use Markdown format.
+            Markdown format with brief description, given/when/then sentence, priority, putting each part of the scenario in a new line.
+            Table format with the columns: Number, brief description, GIVEN-WHEN-THEN-scenario sentence, suggestion of a priority level.
+            Json format with properties title, test case, Given-When-Then sentence, priority.
+            {user_instructions}
             """
         }
     )

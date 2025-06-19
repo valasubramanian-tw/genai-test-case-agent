@@ -34,6 +34,7 @@ class JiraStoryAgent:
             agent = create_react_agent(model, jira_tools, response_format=JiraStory)
             response = await agent.ainvoke({"messages": messages})
             structed_response = response["structured_response"]
+            print("get_jira_story_details response:", structed_response)
             return structed_response
             
         except Exception as e:
